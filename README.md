@@ -46,3 +46,9 @@ By default, each backend is configured for round robin load balancing. To use cu
     etcdctl set /services/foo/backend/balance source
 
 Whenever changes are made in etcd to the `/services` subtree, those changes will automatically trigger a configuration update.
+
+# confd
+see http://www.confd.io/ and https://github.com/kelseyhightower/confd
+
+get new version here: https://github.com/kelseyhightower/confd/releases
+
