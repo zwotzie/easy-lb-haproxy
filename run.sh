@@ -8,4 +8,4 @@ if [[ "$ETCD" == "" ]]; then
     exit 1
 fi
 
-docker run --name haproxy zwotzie/easy-lb-haproxy --rm -p 81:80 -e ETCD_PEERS=$ETCD -e HAPROXY_STATS=1
+docker run --name haproxy --rm -p 81:80 -e ETCD_PEERS=$ETCD -e HAPROXY_STATS=1 zwotzie/easy-lb-haproxy
