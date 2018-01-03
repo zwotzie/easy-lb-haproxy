@@ -1,4 +1,4 @@
-FROM haproxy:1.7-alpine
+FROM haproxy:1.8-alpine
 RUN apk add --update curl && rm -rf /var/cache/apk/*
 RUN mkdir -p /etc/confd/conf.d
 RUN mkdir -p /etc/confd/templates
