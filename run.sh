@@ -3,7 +3,8 @@
 if [[ "$ETCD" == "" ]]; then
     echo Variable ETCD is undefined.
     echo "looks like: http://<ip>:2379 for single node"
-    echo "or comma separated for multi hosts
+    echo "or comma separated for multi hosts"
+    echo "export ETCD=http://xxx:2379"
     exit 1
 fi
 
