@@ -1,7 +1,7 @@
 [template]
 src = "haproxy.tmpl"
 dest = "/usr/local/etc/haproxy/haproxy.cfg"
-keys = [ "/services" ]
+keys = [ "/haproxy" ]
 owner = "root"
 mode = "0644"
 check_cmd = "cat {{ .src }} && haproxy -f {{ .src }} -c"

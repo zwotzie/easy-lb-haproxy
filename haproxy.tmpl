@@ -27,11 +27,11 @@ defaults
 
 frontend http_frontend
     bind *:80
-    {{ range $service := ls "/services" }}
-    {{ if ls (printf "/services/%s/upstream" $service) }}
-    acl {{ $service }}_acl path_beg {{ if exists (printf "/services/%s/location" $service) }}{{ getv (printf "/services/%s/location" $service) }}{{ else }}/{{ $service }}{{ end }}
-    {{ if exists (printf "/services/%s/location" $service) }}
-    {{ if eq (getv (printf "/services/%s/location" $service)) "/" }}
+    {{ range $service := ls "/haproxy" }}
+    {{ if ls (printf "/haproxy/%s/upstream" $service) }}
+    acl {{ $service }}_acl path_beg {{ if exists (printf "/haproxy/%s/location" $service) }}{{ getv (printf "/haproxy/%s/location" $service) }}{{ else }}/{{ $service }}{{ end }}
+    {{ if exists (printf "/haproxy/%s/location" $service) }}
+    {{ if eq (getv (printf "/haproxy/%s/location" $service)) "/" }}
     default_backend {{ $service }}_backend
     {{ else }}
     use_backend {{ $service }}_backend if {{ $service }}_acl
@@ -42,18 +42,18 @@ frontend http_frontend
     {{ end }}
     {{ end }}
 
-{{ range $service := ls "/services" }}
-{{ if ls (printf "/services/%s/upstream" $service) }}
+{{ range $service := ls "/haproxy" }}
+{{ if ls (printf "/haproxy/%s/upstream" $service) }}
 backend {{ $service }}_backend
-    {{ if ls (printf "/services/%s/backend" $service) }}
-    {{ range $option := ls (printf "/services/%s/backend" $service) }}
-    {{ $option }} {{ getv (printf "/services/%s/backend/%s" $service $option) }}
+    {{ if ls (printf "/haproxy/%s/backend" $service) }}
+    {{ range $option := ls (printf "/haproxy/%s/backend" $service) }}
+    {{ $option }} {{ getv (printf "/haproxy/%s/backend/%s" $service $option) }}
     {{ end }}
     {{ else }}
     balance roundrobin
     {{ end }}
-    {{ range $server := ls (printf "/services/%s/upstream" $service) }}
-    server {{ $server }} {{ getv (printf "/services/%s/upstream/%s" $service $server) }} check
+    {{ range $server := ls (printf "/haproxy/%s/upstream" $service) }}
+    server {{ $server }} {{ getv (printf "/haproxy/%s/upstream/%s" $service $server) }} check
     {{ end }}
 {{ end }}
 {{ end }}
