@@ -8,6 +8,7 @@ syslogd
 
 # wait until there is a configuration available
 while [ ! -f /usr/local/etc/haproxy/haproxy.cfg ]; do
+    echo "boot.sh: ... waiting 1s until /usr/local/etc/haproxy/haproxy.cfg exists"
     sleep 1
 done
 
