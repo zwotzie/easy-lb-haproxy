@@ -1,7 +1,7 @@
 FROM haproxy:1.8-alpine
 RUN apk add --update curl && rm -rf /var/cache/apk/*
-RUN mkdir -p /etc/confd/conf.d
-RUN mkdir -p /etc/confd/templates
+RUN mkdir -p /etc/confd/conf.d && mkdir /etc/confd/templates && mkdir /usr/local/etc/haproxy/ssl
+# COPY mycertificate.pem /usr/local/etc/haproxy/ssl
 COPY confd .
 RUN chmod +x confd
 COPY haproxy.toml /etc/confd/conf.d/
