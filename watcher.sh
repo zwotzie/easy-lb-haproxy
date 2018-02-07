@@ -1,12 +1,15 @@
 #!/bin/sh
 
 if [ ! -z "$ZK" ]; then
-    echo "watcher.sh: is using zookeeper: ${ZK}"
+
+    ZK_CONFD=$(for node in ${ZK//,/ }; do echo "-node ${node}"; done)
+
+    echo "watcher.sh: is using zookeeper: ${ZK_CONFD}"
 
     # attempt to generate a first configuration
     while [ true ]; do
         echo renerating config first time...
-        ./confd -onetime -backend zookeeper -node ${ZK} -config-file /etc/confd/conf.d/haproxy.toml
+        ./confd -onetime -backend zookeeper ${ZK_CONFD} -config-file /etc/confd/conf.d/haproxy.toml
         if [ "$?" != "0" ]; then
             echo "watcher.sh: confd cannot generate initial configuration, retrying in 10 sec..."
             sleep 5
@@ -17,7 +20,7 @@ if [ ! -z "$ZK" ]; then
 
     # start the watch cycle
     while [ true ]; do
-        ./confd -interval 10 -backend zookeeper -node ${ZK} -config-file /etc/confd/conf.d/haproxy.toml
+        ./confd -interval 10 -backend zookeeper ${ZK_CONFD} -config-file /etc/confd/conf.d/haproxy.toml
         echo "watcher.sh: confd exited, restarting."
     done
 
