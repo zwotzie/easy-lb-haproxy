@@ -1,12 +1,12 @@
 global
     log /dev/log    local0
-    log /dev/log    local1 notice
+#    log /dev/log    local1 debug
 
 defaults
     log    global
     mode    http
     option    httplog
-    option    dontlognull
+#    option    dontlognull
     timeout connect 5000
     timeout client  50000
     timeout server  50000
@@ -31,33 +31,37 @@ frontend http_frontend
     redirect scheme https if !{ ssl_fc }
     mode http
     {{ $lb_host := getenv "LB_HOST" }}
-    {{ range $service := ls (printf "/haproxy/%s" $lb_host) }}
-    {{ if ls (printf "/haproxy/%s/%s/upstream" $lb_host $service) }}
-    acl {{ $service }}_acl path_beg {{ if exists (printf "/haproxy/%s/%s/location" $lb_host $service) }}{{ getv (printf "/haproxy/%s/%s/location" $lb_host $service) }}{{ else }}/{{ $service }}{{ end }}
-    {{ if exists (printf "/haproxy/%s/%s/location" $lb_host $service) }}
-    {{ if eq (getv (printf "/haproxy/%s/%s/location" $lb_host $service)) "/" }}
-    default_backend {{ $service }}_backend
-    {{ else }}
-    use_backend {{ $service }}_backend if {{ $service }}_acl
-    {{ end }}
-    {{ else }}
-    use_backend {{ $service }}_backend if {{ $service }}_acl
-    {{ end }}
-    {{ end }}
-    {{ end }}
-
 {{ range $service := ls (printf "/haproxy/%s" $lb_host) }}
-{{ if ls (printf "/haproxy/%s/%s/upstream" $lb_host $service) }}
-backend {{ $service }}_backend
-    {{ if ls (printf "/haproxy/%s/%s/backend" $lb_host $service) }}
-    {{ range $option := ls (printf "/haproxy/%s/%s/backend" $lb_host $service) }}
-    {{ $option }} {{ getv (printf "/haproxy/%s/%s/backend/%s" $lb_host $service $option) }}
-    {{ end }}
-    {{ else }}
-    balance roundrobin
-    {{ end }}
-    {{ range $server := ls (printf "/haproxy/%s/%s/upstream" $lb_host $service) }}
-    server {{ $server }} {{ getv (printf "/haproxy/%s/%s/upstream/%s" $lb_host $service $server) }} check
+    {{ if ls (printf "/haproxy/%s/%s/upstream" $lb_host $service) }}
+        acl {{ $service }}_acl path_beg {{ if exists (printf "/haproxy/%s/%s/location" $lb_host $service) }}{{ getv (printf "/haproxy/%s/%s/location" $lb_host $service) }}{{ else }}/{{ $service }}{{ end }}
+        {{ if exists (printf "/haproxy/%s/%s/location" $lb_host $service) }}
+            {{ if eq (getv (printf "/haproxy/%s/%s/location" $lb_host $service)) "/" }}
+                default_backend {{ $service }}_backend
+            {{ else }}
+                use_backend {{ $service }}_backend if {{ $service }}_acl
+            {{ end }}
+        {{ else }}
+            use_backend {{ $service }}_backend if {{ $service }}_acl
+        {{ end }}
     {{ end }}
 {{ end }}
+
+{{ range $service := ls (printf "/haproxy/%s" $lb_host) }}
+    {{ if ls (printf "/haproxy/%s/%s/upstream" $lb_host $service) }}
+        backend {{ $service }}_backend
+        {{ if ls (printf "/haproxy/%s/%s/backend" $lb_host $service) }}
+            {{ range $option := ls (printf "/haproxy/%s/%s/backend" $lb_host $service) }}
+                {{ $option }} {{ getv (printf "/haproxy/%s/%s/backend/%s" $lb_host $service $option) }}
+            {{ end }}
+        {{ else }}
+            balance roundrobin
+        {{ end }}
+        {{ range $server := ls (printf "/haproxy/%s/%s/upstream" $lb_host $service) }}
+            # reqrep ^([^\ :]*)\ /php/(.*) \1\ /\2
+            {{ if exists (printf "/haproxy/%s/%s/backend_location" $lb_host $service) }}
+                reqrep ^([^\ :]*)\ /{{ getv (printf "/haproxy/%s/%s/location" $lb_host $service) }}/(.*) \1\ {{ getv (printf "/haproxy/%s/%s/backend_location" $lb_host $service) }}/\2
+            {{ end }}
+            server {{ $server }} {{ getv (printf "/haproxy/%s/%s/upstream/%s" $lb_host $service $server) }} check
+        {{ end }}
+    {{ end }}
 {{ end }}

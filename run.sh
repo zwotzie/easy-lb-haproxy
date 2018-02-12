@@ -13,7 +13,7 @@ if [ ! -z "$ZK" ]; then
     docker run -d \
         --name haproxy\
         --rm -p 80:80 -p 443:443 \
-        -e ZK=${ZK} \
+        -e ZK="${ZK}" \
         -e LB_HOST=$LB_HOST \
         -e HAPROXY_STATS=1 \
         -v ${DIR}/mycertificate.pem:/usr/local/etc/haproxy/ssl/mycertificate.pem \

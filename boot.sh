@@ -4,7 +4,9 @@
 ./watcher.sh &
 
 # start syslog daemon
-syslogd
+#syslogd
+# <--- link to docker's stdout, not "your stdout"
+syslogd -O /proc/1/fd/1
 
 # wait until there is a configuration available
 while [ ! -f /usr/local/etc/haproxy/haproxy.cfg ]; do
@@ -12,4 +14,4 @@ while [ ! -f /usr/local/etc/haproxy/haproxy.cfg ]; do
     sleep 1
 done
 
-exec /docker-entrypoint.sh haproxy -f /usr/local/etc/haproxy/haproxy.cfg
+exec /docker-entrypoint.sh haproxy -d -V -f /usr/local/etc/haproxy/haproxy.cfg
