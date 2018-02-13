@@ -59,7 +59,7 @@ frontend http_frontend
         {{ range $server := ls (printf "/haproxy/%s/%s/upstream" $lb_host $service) }}
             # reqrep ^([^\ :]*)\ /php/(.*) \1\ /\2
             {{ if exists (printf "/haproxy/%s/%s/backend_location" $lb_host $service) }}
-                reqrep ^([^\ :]*)\ /{{ getv (printf "/haproxy/%s/%s/location" $lb_host $service) }}/(.*) \1\ {{ getv (printf "/haproxy/%s/%s/backend_location" $lb_host $service) }}/\2
+                reqrep ^([^\ :]*)\ {{ getv (printf "/haproxy/%s/%s/location" $lb_host $service) }}/(.*) \1\ {{ getv (printf "/haproxy/%s/%s/backend_location" $lb_host $service) }}\2
             {{ end }}
             server {{ $server }} {{ getv (printf "/haproxy/%s/%s/upstream/%s" $lb_host $service $server) }} check
         {{ end }}
